@@ -52,22 +52,22 @@ module.exports.signup = async (req, res) => {
 module.exports.login = async (req, res) => {
   try {
     /**
-     * Incoming Email And Password
+     * Incoming Username And Password
      */
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     /**
-     * Find User Against Email
+     * Find User Against Username
      */
-    const user = await UsersModel.findOne({ email });
+    const user = await UsersModel.findOne({ username });
 
     /**
-     * @return Return An Error If Email Is Invalid
+     * @return Return An Error If Username Is Invalid
      */
     if (!user) {
       return res
         .status(403)
-        .json({ error: true, msg: "Invalid Email Or Password!" });
+        .json({ error: true, msg: "Invalid Username Or Password!" });
     }
     /**
      * Compare Password
@@ -79,7 +79,7 @@ module.exports.login = async (req, res) => {
     if (!passwordCompare) {
       return res
         .status(403)
-        .json({ error: true, msg: "Invalid Email Or Password!" });
+        .json({ error: true, msg: "Invalid Username Or Password!" });
     }
 
     /**

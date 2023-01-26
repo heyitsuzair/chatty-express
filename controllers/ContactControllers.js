@@ -7,17 +7,17 @@ module.exports.addContact = async (req, res) => {
     /**
      * Incoming Request Body
      */
-    const { friend_email } = req.body;
+    const { username } = req.body;
 
     const user_id = req.user_id;
 
     /**
      * Find Friend
      */
-    const friend = await UsersModel.findOne({ email: friend_email });
+    const friend = await UsersModel.findOne({ username });
 
     if (!friend) {
-      return res.status(400).json({ error: true, msg: "Invalid Email!" });
+      return res.status(400).json({ error: true, msg: "Invalid Username!" });
     }
 
     if (user_id === friend.id) {
