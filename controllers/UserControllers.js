@@ -81,6 +81,7 @@ module.exports.login = async (req, res) => {
         .status(403)
         .json({ error: true, msg: "Invalid Email Or Password!" });
     }
+
     /**
      * Generating JWT And Sending To Request
      */
