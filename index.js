@@ -10,8 +10,12 @@ app.use(express.json());
 
 mongoose.set("strictQuery", true);
 
+const authRoutes = require("./routes/UserRoutes");
+
+app.use("/api/auth", authRoutes);
+
 mongoose
-  .connect(process.env.MONGO_URL || 5000, {
+  .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -23,5 +27,5 @@ mongoose
   });
 
 const server = app.listen(process.env.PORT, () => {
-  console.log("Connected");
+  console.log("Listening On " + process.env.PORT);
 });
