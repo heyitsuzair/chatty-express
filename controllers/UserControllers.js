@@ -1,5 +1,6 @@
 const UsersModel = require("../models/UsersModel");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 module.exports.signup = async (req, res) => {
   try {
@@ -43,6 +44,55 @@ module.exports.signup = async (req, res) => {
       return res.json({ error: false, msg: "Account Created!" });
     }
     return res.status(400).json({ error: true, msg: "Something Went Wrong" });
+  } catch (error) {
+    return res.status(500).json({ error: true, msg: error.message });
+  }
+};
+module.exports.login = async (req, res) => {
+  try {
+    /**
+     * Incoming Email And Password
+     */
+    const { email, password } = req.body;
+
+    /**
+     * Find User Against Email
+     */
+    const user = await UsersModel.findOne({ email });
+
+    /**
+     * @return Return An Error If Email Is Invalid
+     */
+    if (!user) {
+      return res
+        .status(403)
+        .json({ error: true, msg: "Invalid Email Or Password!" });
+    }
+    /**
+     * Compare Password
+     */
+    const passwordCompare = await bcrypt.compare(password, user.password);
+    /**
+     * @return Return An Error If Password Is Invalid
+     */
+    if (!passwordCompare) {
+      return res
+        .status(403)
+        .json({ error: true, msg: "Invalid Email Or Password!" });
+    }
+    /**
+     * Generating JWT And Sending To Request
+     */
+    const data = {
+      user_id: user._id,
+    };
+
+    const token = jwt.sign(data, process.env.JWT_SECRET);
+
+    /**
+     * @return Return A Token To Request With Logged In User "ID" In Token
+     */
+    return res.status(200).json({ error: false, token });
   } catch (error) {
     return res.status(500).json({ error: true, msg: error.message });
   }
