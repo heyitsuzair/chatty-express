@@ -11,8 +11,10 @@ app.use(express.json());
 mongoose.set("strictQuery", true);
 
 const authRoutes = require("./routes/UserRoutes");
+const contactRoutes = require("./routes/ContactRoutes");
 
 app.use("/api/auth", authRoutes);
+app.use("/api/contact", contactRoutes);
 
 mongoose
   .connect(process.env.MONGO_URL, {
