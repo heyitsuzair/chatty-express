@@ -70,7 +70,8 @@ module.exports.getContacts = async (req, res) => {
     const user_id = req.user_id;
 
     const find_contacts = await ContactsModel.find({ user_id }).populate(
-      "friend_id"
+      "friend_id",
+      ["-password", "-email"]
     );
 
     /**
