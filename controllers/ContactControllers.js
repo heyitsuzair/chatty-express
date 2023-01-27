@@ -46,14 +46,21 @@ module.exports.addContact = async (req, res) => {
     }
 
     /**
-     * Add Contact
+     * Add First Contact For User
      */
-    const is_contact_added = await ContactsModel.create({
+    const is_user_contact_added = await ContactsModel.create({
       friend_id: friend.id,
       user_id,
     });
+    /**
+     * Add Second Contact For Friend
+     */
+    const is_friend_contact_added = await ContactsModel.create({
+      friend_id: user_id,
+      user_id: friend.id,
+    });
 
-    if (is_contact_added) {
+    if (is_friend_contact_added && is_user_contact_added) {
       return res.json({ error: false, msg: "Contact Added!" });
     }
 
@@ -69,10 +76,9 @@ module.exports.getContacts = async (req, res) => {
      */
     const user_id = req.user_id;
 
-    const find_contacts = await ContactsModel.find({ user_id }).populate(
-      "friend_id",
-      ["-password", "-email"]
-    );
+    const find_contacts = await ContactsModel.find({
+      user_id,
+    }).populate("friend_id", ["-password", "-email"]);
 
     /**
      * Final Array Of Contacts For Response
