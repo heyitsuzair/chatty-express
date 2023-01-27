@@ -15,6 +15,12 @@ module.exports.socketConfig = (socket, io) => {
        * Assign A "user_id" object to the socket
        */
       socket.user_id = user_id;
+
+      /**
+       * Broadcast (Except One That Logged In) Event To Frontend Whenever Any User Logs In
+       */
+      socket.broadcast.emit("userConnected", user_id);
+
       /**
        * Update User Last Active
        */
@@ -28,6 +34,13 @@ module.exports.socketConfig = (socket, io) => {
      */
     socket.on("disconnect", async () => {
       const user_id = socket.user_id;
+
+      /**
+       * Triggers Only If User Was Logged In (User Id Is Not Null)
+       *
+       * Broadcast (Except One That Logged Out) Event To Frontend Whenever Any User Logs In
+       */
+      user_id && socket.broadcast.emit("userDisConnected", user_id);
       /**
        * Update User Last Active
        */
@@ -43,6 +56,11 @@ module.exports.socketConfig = (socket, io) => {
     socket.on("onLogout", async (jwt_token) => {
       const data = jwt.verify(jwt_token, JWT_SECRET);
       const user_id = data.user_id;
+
+      /**
+       * Broadcast (Except One That Logged Out) Event To Frontend Whenever Any User Logs In
+       */
+      socket.broadcast.emit("userDisConnected", user_id);
       /**
        * Update User Last Active
        */
