@@ -5,6 +5,22 @@ const mongoose = require("mongoose");
 const app = express();
 require("dotenv").config();
 
+/**
+ * Socket.io configuration
+ */
+const socket = require("socket.io");
+const http = require("http");
+const server = http.createServer(app);
+const { socketConfig } = require("./sockets");
+
+const io = socket(server, {
+  cors: {
+    origin: process.env.APP_URL,
+  },
+}); //in case server and client run on different urls
+
+socketConfig(socket, io);
+
 app.use(cors());
 app.use(express.json());
 
@@ -28,6 +44,6 @@ mongoose
     console.log(error.message);
   });
 
-const server = app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log("Listening On " + process.env.PORT);
 });
