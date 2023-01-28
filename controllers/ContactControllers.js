@@ -46,11 +46,17 @@ module.exports.addContact = async (req, res) => {
     }
 
     /**
+     * Add A Empty Message Document
+     */
+    const messages = await MessagesModel.create({ messages: [] });
+
+    /**
      * Add First Contact For User
      */
     const is_user_contact_added = await ContactsModel.create({
       friend_id: friend.id,
       user_id,
+      messages: messages._id,
     });
     /**
      * Add Second Contact For Friend
@@ -58,6 +64,7 @@ module.exports.addContact = async (req, res) => {
     const is_friend_contact_added = await ContactsModel.create({
       friend_id: user_id,
       user_id: friend.id,
+      messages: messages._id,
     });
 
     if (is_friend_contact_added && is_user_contact_added) {
@@ -76,41 +83,11 @@ module.exports.getContacts = async (req, res) => {
      */
     const user_id = req.user_id;
 
-    const find_contacts = await ContactsModel.find({
+    const contacts = await ContactsModel.find({
       user_id,
-    }).populate("friend_id", ["-password", "-email"]);
-
-    /**
-     * Final Array Of Contacts For Response
-     *
-     * Will Be Pushed Each Time While Iterating Over Each Contact
-     */
-    const contacts = [];
-
-    /**
-     * Iterate Over Each Contact
-     *
-     * Get Messages Against Friend ID in Each Contact Document And Logged In User ID
-     */
-    for (let i = 0; i < find_contacts.length; i++) {
-      const contact = find_contacts[i];
-
-      /**
-       * Find Messages
-       */
-      const messages = await MessagesModel.find({
-        user_id,
-        sender_id: contact.friend_id,
-      });
-      /**
-       * Add Messages To Object
-       */
-      const object = {
-        contact,
-        messages,
-      };
-      contacts.push(object);
-    }
+    })
+      .populate("friend_id", ["-password", "-email"])
+      .populate("messages");
 
     /**
      * @return Found Contacts

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const MessagesModel = require("../models/MessagesModel");
 const JWT_SECRET = process.env.JWT_SECRET;
 const UsersModel = require("../models/UsersModel");
 
@@ -30,9 +31,57 @@ module.exports.socketConfig = (socket, io) => {
     });
 
     /**
+     * When Someone Sends Messages
+     */
+    socket.on("sendMessage", async (data) => {
+      /**
+       * Get Sender ID From JWT
+       */
+      const token = jwt.verify(data.update.sender_id, JWT_SECRET);
+      data.update.sender_id = token.user_id;
+
+      const update_message = await MessagesModel.findById(data.message_id);
+      update_message.messages = [...update_message.messages, data.update];
+      update_message.save();
+
+      socket.emit("messageReceived", update_message);
+    });
+    /**
+     * When Someone Sends Messages
+     */
+    socket.on("readingConversation", async (data) => {
+      /**
+       * Get Receiver ID From JWT
+       */
+      const token = jwt.verify(data.update.receiver_id, JWT_SECRET);
+      data.update.receiver_id = token.user_id;
+
+      const are_messages_seen = await MessagesModel.findOne({
+        id: data.message_id,
+        "messages.receiver_id": data.update.receiver_id,
+        "messages.sender_id": data.update.sender_id,
+      });
+
+      if (are_messages_seen) {
+        const newMessages = [];
+        /**
+         * Iterate Over Each Message And Make Its Seen True
+         */
+        for (let i = 0; i < are_messages_seen.messages.length; i++) {
+          const message = are_messages_seen.messages[i];
+          message.seen = true;
+          newMessages.push(message);
+        }
+
+        are_messages_seen.messages = newMessages;
+        are_messages_seen.save();
+      }
+    });
+
+    /**
      * When Someone Closes Browser Or Tab
      */
-    socket.on("disconnect", async () => {
+    socket.on("disconnect", async (reason) => {
       const user_id = socket.user_id;
 
       /**

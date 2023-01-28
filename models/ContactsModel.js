@@ -10,5 +10,10 @@ const ContactsModel = new mongoose.Schema({
     ref: "users",
     required: true,
   },
+  messages: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "messages",
+    required: true,
+  },
 });
 module.exports = mongoose.model("contacts", ContactsModel);
