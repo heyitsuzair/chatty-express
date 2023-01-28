@@ -67,8 +67,19 @@ module.exports.addContact = async (req, res) => {
       messages: messages._id,
     });
 
+    /**
+     * Get Added Contact Details
+     */
+
+    const contact = await ContactsModel.findById(is_user_contact_added._id)
+      .populate("friend_id", ["-password", "-email"])
+      .populate("messages");
     if (is_friend_contact_added && is_user_contact_added) {
-      return res.json({ error: false, msg: "Contact Added!" });
+      return res.json({
+        error: false,
+        msg: "Contact Added!",
+        contact,
+      });
     }
 
     return res.json({ error: true, msg: "Something Went Wrong!" });

@@ -44,7 +44,7 @@ module.exports.socketConfig = (socket, io) => {
       update_message.messages = [...update_message.messages, data.update];
       update_message.save();
 
-      socket.emit("messageReceived", update_message);
+      io.emit("messageReceived", update_message);
     });
     /**
      * When Someone Sends Messages
@@ -58,8 +58,8 @@ module.exports.socketConfig = (socket, io) => {
 
       const are_messages_seen = await MessagesModel.findOne({
         id: data.message_id,
-        "messages.receiver_id": data.update.receiver_id,
-        "messages.sender_id": data.update.sender_id,
+        "messages.receiver_id": data.update.sender_id,
+        "messages.sender_id": data.update.receiver_id,
       });
 
       if (are_messages_seen) {
